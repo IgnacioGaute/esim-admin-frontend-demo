@@ -1,0 +1,55 @@
+{
+    "admin": [
+        {
+            "module": "dashboard",
+            "subModule": []
+        },
+        {
+            "module": "bundles",
+            "subModule": ["index","new","bundle/:bundleId"]
+        },
+        {
+            "module": "coupons",
+            "subModule": ["index","new","edit/:couponId"]
+        },
+        {
+            "module": "orders",
+            "subModule": ["index"]
+        },
+        {
+            "module": "companies",
+            "subModule": ["index","new","edit/:companyId"]  
+        },
+        {
+            "module": "credits-company",
+            "subModule": ["index"]  
+        },
+        {
+            "module": "users",
+            "subModule": ["index","new","edit/:userId"]  
+        },
+        {
+            "module": "credits-users",
+            "subModule": ["index"]  
+        },
+        {
+            "module": "marketing",
+            "subModule": ["index","notification-push/new"]  
+        },
+        {
+            "module": "esim-inventory",
+            "subModule": ["index"]
+        }
+        ,
+{
+  "module": "company-topup",
+  "subModule": ["index", "payment", "payment/:sessionId"]
+}
+    ],
+    "store": [
+        {
+            "module": "store",
+            "subModule": ["index", "checkout"]
+        }
+    ]
+}

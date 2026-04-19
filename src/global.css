@@ -1,0 +1,78 @@
+
+/*=============== Background ===============*/
+.bg-white-055 {
+    background-color: rgba(255,255,255,0.55);
+}
+
+.bg-01 {
+    background-color: rgb(248 248 251);
+}
+
+/*=============== Color ===============*/
+
+.text-textDark {
+    color: rgb(9, 28, 22);
+}
+
+.text-textPrimary {
+    color: #1C3680;
+}
+
+/*=============== Image Size ===============*/
+
+.image-size-maxFull{
+    max-height: 100%;
+    max-width: 100%;
+}
+
+/*=============== Shadow ===============*/
+.shadow-1{
+    box-shadow: -1px 1px 17px -3px rgba(23, 31, 87, 0.15);
+    -webkit-box-shadow: -1px 1px 17px -3px rgba(23, 31, 87,0.15);
+    -moz-box-shadow: -1px 1px 17px -3px rgba(23, 31, 87,0.15);
+}
+
+/*=============== Icons Size ===============*/
+
+.icon-google-size{
+    height: 20px;
+    width: 20px;
+}
+
+/*=============== Size ===============*/
+.width-full{
+    width: 100%;
+}
+
+.width-auto{
+    width: auto;
+}
+
+.minWidth-sm-290px{
+    min-width: 260px;
+}
+
+/*=============== Input File Style ===============*/
+
+.input-file_styleButton::-webkit-file-upload-button {
+    visibility: hidden;
+}
+
+.input-file_styleButton::before {
+    content: '';
+    outline: none;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    cursor: pointer;
+    text-shadow: 1px 1px #fff;
+    position: absolute;
+}
+
+@media (max-width: 380px){
+    .width-sm-full{
+        width: 100%;
+    }
+    .minWidth-sm-full{
+        min-width: 100% ;
+    }
+}

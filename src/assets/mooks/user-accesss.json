@@ -1,0 +1,173 @@
+{
+    "SUPER_ADMIN": {
+        "admin": [
+            {
+                "module": "dashboard",
+                "subModule": []
+            },
+            {
+                "module": "bundles",
+                "subModule": ["index","new","bundle/:bundleId"]
+            },
+            {
+                "module": "coupons",
+                "subModule": ["index","new","edit/:couponId"]
+            },
+            {
+                "module": "orders",
+                "subModule": ["index"]
+            },
+            {
+                "module": "companies",
+                "subModule": ["index","new","edit/:companyId"]  
+            },
+            {
+                "module": "credits-company",
+                "subModule": ["index"]  
+            },
+            {
+                "module": "users",
+                "subModule": ["index","new","edit/:userId", "rules", "rules/new", "rules/edit/:ruleId", "referral", "referral/new", "referral/edit/:referralId"]  
+            },
+            {
+                "module": "credits-users",
+                "subModule": ["index"]  
+            },
+            {
+                "module": "transactions",
+                "subModule": ["index"]
+            },
+            {
+                "module": "marketing",
+                "subModule": ["index","notification-push/new"]  
+            },
+            {
+                "module": "store",
+                "subModule": [] 
+            },
+            {
+                "module": "choice-pools",
+                "subModule": ["index","new", "edit/:poolId"]  
+            },
+            {
+                "module": "my-account",
+                "subModule": ["index"]
+            },
+            {
+            "module": "esim-devices",
+            "subModule": [
+                "index",
+                "new",
+                "edit/:id",
+
+                "esim-devices",
+                "esim-devices/new",
+                "esim-devices/edit/:id",
+
+                "/admin/esim-devices",
+                "/admin/esim-devices/new",
+                "/admin/esim-devices/edit/:id"
+            ]
+            },
+            {
+                "module": "partners",
+                "subModule": ["index"]
+            },
+            {
+                "module": "payment-companies",
+                "subModule": ["index"]
+            },
+                        {
+                "module": "countries",
+                "subModule": ["index"]
+            }
+
+        ],
+        "store": [
+            {
+                "module": "store",
+                "subModule": ["index", "checkout"]
+            }
+        ]
+    },
+    "SELLER": {
+        "admin": [
+            {
+                "module": "orders",
+                "subModule": ["index"]
+            },
+                        {
+                "module": "transactions",
+                "subModule": ["index"]
+            },
+            {
+                "module": "esim-inventory",
+                "subModule": ["index"]
+            },
+            {
+                "module": "my-account",
+                "subModule": ["index"]
+            },
+                        {
+                "module": "companies",
+                "subModule": ["index"]  
+            },
+                        {
+                "module": "store",
+                "subModule": [] 
+            }
+        ],
+        "store": [
+            {
+                "module": "store",
+                "subModule": ["index", "checkout"]
+            }
+        ]
+    },
+    "ADMIN": {
+        "admin": [
+            {
+                "module": "orders",
+                "subModule": ["index"]
+            },
+            {
+                "module": "transactions",
+                "subModule": ["index"]
+            },
+            {
+                "module": "users",
+                "subModule": ["index","new","edit/:userId", "rules", "rules/new", "rules/edit/:ruleId", "referral", "referral/new", "referral/edit/:referralId"]  
+            },
+            {
+                "module": "companies",
+                "subModule": ["index","new","edit/:companyId"]  
+            },
+            {
+                "module": "credits-users",
+                "subModule": ["index"]  
+            },
+            {
+                "module": "store",
+                "subModule": [] 
+            },
+            {
+                "module": "esim-inventory",
+                "subModule": ["index"]
+            },
+            { 
+                "module": "my-account", 
+                "subModule": ["index"] 
+            },
+{
+  "module": "company-topup",
+  "subModule": ["index", "payment", "payment/:sessionId"]
+}
+        ],
+        "store": [
+            {
+                "module": "store",
+                "subModule": ["index", "checkout"]
+            }
+        ]
+    } 
+}
