@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Box, keyframes, styled } from '@mui/material';
-import { GridBackground } from '@/shared/components/tron';
+import { Grid3D } from '@/shared/components/tron';
 import { useTronTheme } from '@/theme/TronThemeContext';
 import { stylesLayout } from './Layout.style';
 
@@ -90,7 +90,7 @@ export const PrimaryLayout = ({ children, type = 'primary' }: Props) => {
 
   return (
     <Box component="section" sx={[styles.main, type === 'primary' && styles.primary]}>
-      <GridBackground showOrbs showHorizon />
+      <Grid3D />
       {type === 'primary' ? (
         <GlowCard
           sx={styles.card}

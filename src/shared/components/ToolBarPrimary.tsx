@@ -31,6 +31,7 @@ import { useScreenSize } from '../hooks/useScreenSize';
 import { useNavigate } from 'react-router-dom';
 import { useTronTheme } from '@/theme/TronThemeContext';
 import { IdentitySelector } from './tron/IdentitySelector';
+import { GodAvatar } from './tron/GodAvatar';
 
 function hexToRgb(hex: string): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -63,6 +64,7 @@ interface Props {
     avatar?: string;
     name?: string;
     rol?: string;
+    userType?: string;
   };
   cart?: {
     handleCarOpen: () => void;
@@ -444,6 +446,12 @@ export const ToolBarPrimary = ({
                       width={38} 
                       height={38}
                       sx={{ bgcolor: `rgba(${primaryRgb}, 0.2)` }}
+                    />
+                  ) : user?.userType ? (
+                    <GodAvatar 
+                      userType={user.userType} 
+                      size={38}
+                      fallbackText={user?.name}
                     />
                   ) : (
                     <Avatar

@@ -217,6 +217,7 @@ export const AdminLayout = memo(({ children, routesDrawer }: Props) => {
           name: authMe?.name,
           rol: USER_TYPE_CONST[userType],
           avatar: authMe?.photoUrl ?? undefined,
+          userType: userType,
         }}
       />
 
