@@ -22,6 +22,14 @@ import DeleteIcon from "@mui/icons-material/Delete"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import { SearchOutlined, EditOutlined, HelpOutline } from "@mui/icons-material"
 import { useScreenSize } from "@/shared/hooks/useScreenSize"
+import { useTronTheme } from "@/theme/TronThemeContext"
+
+function hexToRgb(hex: string): string {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+    : '0, 255, 255';
+}
 
 interface EnhancedTableToolbarProps {
   numSelected?: number
@@ -62,6 +70,9 @@ export const DataTableToolbar = memo((props: EnhancedTableToolbarProps) => {
   } = props
 
   const { width } = useScreenSize()
+  const { identity, glowLevel } = useTronTheme()
+  const primaryRgb = hexToRgb(identity.primary)
+  
   const [inputSearch, setinputSearch] = useState("")
   const [showFilter, setShowFilter] = useState(false)
 
@@ -73,10 +84,15 @@ export const DataTableToolbar = memo((props: EnhancedTableToolbarProps) => {
   return (
     <Toolbar
       sx={{
-        pl: { sm: 2 },
-        pr: { xs: 1, sm: 1 },
+        pl: { sm: 2.5 },
+        pr: { xs: 1.5, sm: 2 },
+        py: 1.5,
+        minHeight: '64px !important',
+        borderBottom: `1px solid rgba(${primaryRgb}, 0.1)`,
+        background: `linear-gradient(135deg, rgba(${primaryRgb}, 0.02) 0%, transparent 100%)`,
         ...(numSelected > 0 && {
-          bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
+          bgcolor: `rgba(${primaryRgb}, 0.1)`,
+          borderBottom: `1px solid rgba(${primaryRgb}, 0.2)`,
         }),
       }}
     >
@@ -240,10 +256,17 @@ export const DataTableToolbar = memo((props: EnhancedTableToolbarProps) => {
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  borderRadius: "10px",
+  backgroundColor: "rgba(15, 15, 25, 0.6)",
+  border: "1px solid rgba(var(--tron-primary-rgb, 0, 255, 255), 0.2)",
+  transition: "all 0.2s ease",
   "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
+    backgroundColor: "rgba(15, 15, 25, 0.8)",
+    borderColor: "rgba(var(--tron-primary-rgb, 0, 255, 255), 0.35)",
+  },
+  "&:focus-within": {
+    borderColor: "var(--tron-primary, #00FFFF)",
+    boxShadow: "0 0 0 3px rgba(var(--tron-primary-rgb, 0, 255, 255), 0.1)",
   },
   marginRight: theme.spacing(2),
   marginLeft: 0,
@@ -254,31 +277,40 @@ const Search = styled("div")(({ theme }) => ({
 }))
 
 const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, "8px"),
+  padding: theme.spacing(0, 1.5),
   height: "100%",
   position: "absolute",
   pointerEvents: "none",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  color: "#6E6E71",
+  color: "var(--tron-primary, #00FFFF)",
+  opacity: 0.6,
   zIndex: 1,
 }))
+
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
+  color: "#E8E8E8",
+  width: "100%",
   "& .MuiInputBase-input": {
-    fontSize: "0.85rem",          // ✅ más chico (probá 0.8rem / 0.75rem)
-    lineHeight: 1.2,              // ✅ opcional
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing("24px")})`,
-    transition: theme.transitions.create("width"),
+    fontSize: "13px",
+    lineHeight: 1.4,
+    padding: theme.spacing(1.25, 1.5, 1.25, 0),
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create(["width", "background-color"]),
     width: "100%",
-    backgroundColor: "#F6F6F7",
-    color: "#6E6E71",
-    borderRadius: "4px",
-    border: "1px solid rgba(0, 0, 0, 0.08)",
+    backgroundColor: "transparent",
+    color: "#E8E8E8",
+    borderRadius: "10px",
+    "&::placeholder": {
+      color: "rgba(232, 232, 232, 0.4)",
+      opacity: 1,
+    },
     [theme.breakpoints.up("md")]: {
-      width: "40ch",
+      width: "32ch",
+      "&:focus": {
+        width: "40ch",
+      },
     },
   },
 }))

@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from "react"
-import { styled } from "@mui/material/styles"
+import { styled, keyframes } from "@mui/material/styles"
 import {
   Box,
   Button,
@@ -9,33 +9,37 @@ import {
   IconButton,
   Tooltip,
   Typography,
-  alpha,
 } from "@mui/material"
+// Note: Collapse is still used for menu groups
 import {
   CloseOutlined,
   ExitToAppOutlined,
   ExpandMore,
-  SimCardOutlined,
 } from "@mui/icons-material"
 import { useLocation, useNavigate } from "react-router-dom"
 
 import LogoNew from "@/assets/images/logo/esim-logo.svg"
 import { NavigateLink } from "./NavigateLink"
+import { useTronTheme } from "@/theme/TronThemeContext"
 
-export const DrawerPrimaryWidth = 250
-export const DrawerPrimaryCollapsedWidth = 56
+export const DrawerPrimaryWidth = 280
+export const DrawerPrimaryCollapsedWidth = 64
 
-const colors = {
-  primary: "#1C3680",
-  primaryLight: "#2A4A9E",
-  surface: "#FFFFFF",
-  textPrimary: "#1A1D26",
-  textSecondary: "#5C6370",
-  border: "rgba(28, 54, 128, 0.08)",
-  hoverBg: "rgba(28, 54, 128, 0.04)",
-  activeBg: "rgba(28, 54, 128, 0.08)",
-  childBorder: "rgba(28, 54, 128, 0.15)",
+function hexToRgb(hex: string): string {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  return result
+    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+    : "0, 255, 255"
 }
+
+const glowPulse = keyframes`
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+`
 
 interface Props {
   drawerWidth?: number
@@ -75,12 +79,24 @@ export const DrawerPrimary = ({
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
   const navigate = useNavigate()
   const location = useLocation()
+  const { identity, glowLevel } = useTronTheme()
 
   const currentPath = location.pathname
+  const primaryColor = identity.primary
+  const primaryRgb = hexToRgb(primaryColor)
+
+  const colors = {
+    surface: "rgba(10, 10, 18, 0.95)",
+    border: `rgba(${primaryRgb}, 0.2)`,
+    hoverBg: `rgba(${primaryRgb}, 0.1)`,
+    activeBg: `rgba(${primaryRgb}, 0.15)`,
+    childBorder: `rgba(${primaryRgb}, 0.3)`,
+    textPrimary: "#E8E8E8",
+    textSecondary: "rgba(232, 232, 232, 0.6)",
+  }
 
   const initialOpenGroups = useMemo(() => {
     const state: Record<string, boolean> = {}
-
     routesNav.forEach((item) => {
       if (item.children?.length) {
         const hasActiveChild = item.children.some(
@@ -89,11 +105,9 @@ export const DrawerPrimary = ({
             currentPath === child.url ||
             currentPath.startsWith(`${child.url}/`)
         )
-
         state[item.key] = hasActiveChild
       }
     })
-
     return state
   }, [routesNav, routeActive, currentPath])
 
@@ -112,14 +126,11 @@ export const DrawerPrimary = ({
   }
 
   const handleItemClick = (item: IItemsNavDrawer) => {
-    // drawer colapsado + item normal => navegar sin abrir
     if (collapsed && !item.children?.length) {
       navigate(item.url)
       if (isMobile) handleDrawerClose()
       return
     }
-
-    // drawer abierto + item normal => navegar
     if (!item.children?.length) {
       navigate(item.url)
       if (isMobile) handleDrawerClose()
@@ -127,14 +138,11 @@ export const DrawerPrimary = ({
   }
 
   const handleGroupClick = (item: IItemsNavDrawer) => {
-    // drawer colapsado + grupo => abrir drawer y abrir el desplegable
     if (collapsed) {
       handleDrawerOpen?.()
       toggleGroup(item.key, true)
       return
     }
-
-    // drawer abierto => toggle normal
     toggleGroup(item.key)
   }
 
@@ -148,15 +156,24 @@ export const DrawerPrimary = ({
           boxSizing: "border-box",
           borderRight: `1px solid ${colors.border}`,
           backgroundColor: colors.surface,
-          boxShadow: "0 0 40px rgba(28, 54, 128, 0.04)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          boxShadow: glowLevel > 0 
+            ? `4px 0 ${20 * glowLevel}px rgba(${primaryRgb}, 0.1)`
+            : "none",
           overflowX: "hidden",
           overflowY: "auto",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
+          scrollbarWidth: "thin",
+          scrollbarColor: `rgba(${primaryRgb}, 0.3) transparent`,
           "&::-webkit-scrollbar": {
-            display: "none",
-            width: 0,
-            height: 0,
+            width: "6px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: `rgba(${primaryRgb}, 0.3)`,
+            borderRadius: "3px",
           },
         },
       }}
@@ -164,7 +181,7 @@ export const DrawerPrimary = ({
       anchor="left"
       open={open}
     >
-      <DrawerHeaderPrimary sx={{ px: collapsed ? 1 : 1.5 }}>
+      <DrawerHeaderPrimary sx={{ px: collapsed ? 1 : 2 }}>
         <Box
           display="flex"
           width="100%"
@@ -172,18 +189,22 @@ export const DrawerPrimary = ({
           justifyContent={collapsed ? "center" : "space-between"}
         >
           {collapsed ? (
-            <Tooltip title="Abrir menú" placement="right" arrow>
+            <Tooltip title="Abrir menu" placement="right" arrow>
               <IconButton
                 onClick={handleDrawerOpen}
                 sx={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: "12px",
+                  width: 42,
+                  height: 42,
+                  borderRadius: "8px",
                   border: `1px solid ${colors.border}`,
                   backgroundColor: colors.activeBg,
-                  color: colors.primary,
+                  color: primaryColor,
+                  transition: "all 0.3s ease",
                   "&:hover": {
                     backgroundColor: colors.hoverBg,
+                    boxShadow: glowLevel > 0 
+                      ? `0 0 ${15 * glowLevel}px rgba(${primaryRgb}, 0.3)`
+                      : "none",
                   },
                 }}
               >
@@ -204,20 +225,43 @@ export const DrawerPrimary = ({
                 justifyContent="center"
                 sx={{ minWidth: 0, flex: 1 }}
               >
-                <img
-                  src={LogoNew}
-                  alt="eSIM Demo Logo"
-                  style={{ height: "2.5rem", width: "auto", maxWidth: "100%" }}
-                />
+                <Box
+                  sx={{
+                    position: "relative",
+                    "&::after": {
+                      content: '""',
+                      position: "absolute",
+                      bottom: "-8px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      width: "60%",
+                      height: "1px",
+                      background: `linear-gradient(90deg, transparent, rgba(${primaryRgb}, 0.5), transparent)`,
+                    },
+                  }}
+                >
+                  <img
+                    src={LogoNew}
+                    alt="eSIM Demo Logo"
+                    style={{ 
+                      height: "2.2rem", 
+                      width: "auto", 
+                      maxWidth: "100%",
+                      filter: "brightness(0) invert(1)",
+                      opacity: 0.9,
+                    }}
+                  />
+                </Box>
               </Box>
 
               <IconButton
                 onClick={handleDrawerClose}
                 sx={{
                   color: colors.textSecondary,
+                  transition: "all 0.3s ease",
                   "&:hover": {
                     backgroundColor: colors.hoverBg,
-                    color: colors.primary,
+                    color: primaryColor,
                   },
                 }}
               >
@@ -236,24 +280,23 @@ export const DrawerPrimary = ({
         width="100%"
         flexDirection="column"
         pt={2}
-        sx={{ backgroundColor: colors.surface }}
       >
-        {/* ── Nav items (natural height, no flex-grow) ── */}
-        <Box px={collapsed ? 1 : 1.5}>
+        {/* Nav items */}
+        <Box px={collapsed ? 1 : 2}>
           {!collapsed && (
             <Typography
               sx={{
-                fontSize: "0.62rem",
+                fontSize: "0.65rem",
                 fontWeight: 700,
-                letterSpacing: "0.1em",
-                color: colors.textSecondary,
-                opacity: 0.5,
-                px: 1.75,
-                mb: 1,
+                letterSpacing: "0.15em",
+                color: primaryColor,
+                opacity: 0.7,
+                px: 1,
+                mb: 1.5,
                 textTransform: "uppercase",
               }}
             >
-              Menú
+              Menu
             </Typography>
           )}
 
@@ -280,16 +323,18 @@ export const DrawerPrimary = ({
                     isOpen={!!openGroups[item.key]}
                     onToggle={() => handleGroupClick(item)}
                     collapsed={collapsed}
+                    primaryColor={primaryColor}
+                    glowLevel={glowLevel}
                   />
 
                   {!collapsed && (
                     <Collapse in={!!openGroups[item.key]} timeout={200} unmountOnExit>
                       <Box
                         sx={{
-                          ml: 2.5,
+                          ml: 3,
                           mt: 0.5,
                           mb: 1,
-                          pl: 1.5,
+                          pl: 2,
                           borderLeft: `2px solid ${colors.childBorder}`,
                         }}
                       >
@@ -313,6 +358,8 @@ export const DrawerPrimary = ({
                                 if (isMobile) handleDrawerClose()
                               }}
                               isChild
+                              primaryColor={primaryColor}
+                              glowLevel={glowLevel}
                             />
                           )
                         })}
@@ -338,37 +385,88 @@ export const DrawerPrimary = ({
                 to={item.url}
                 onPress={() => handleItemClick(item)}
                 collapsed={collapsed}
+                primaryColor={primaryColor}
+                glowLevel={glowLevel}
               />
             )
           })}
         </Box>
 
-        {/* ── Decorative spacer ── */}
+        {/* Spacer with decorative grid pattern */}
         {!collapsed ? (
           <Box
             sx={{
               flex: 1,
               mx: 2,
               my: 2,
-              borderRadius: "16px",
+              borderRadius: "12px",
               overflow: "hidden",
               position: "relative",
-              background: `linear-gradient(160deg, ${alpha(colors.primary, 0.07)} 0%, ${alpha(colors.primary, 0.03)} 60%, transparent 100%)`,
-              border: `1px solid ${alpha(colors.primary, 0.07)}`,
+              background: `linear-gradient(160deg, rgba(${primaryRgb}, 0.08) 0%, rgba(${primaryRgb}, 0.02) 100%)`,
+              border: `1px solid rgba(${primaryRgb}, 0.15)`,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
               minHeight: 80,
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                inset: 0,
+                background: `
+                  repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 19px,
+                    rgba(${primaryRgb}, 0.05) 19px,
+                    rgba(${primaryRgb}, 0.05) 20px
+                  ),
+                  repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 19px,
+                    rgba(${primaryRgb}, 0.05) 19px,
+                    rgba(${primaryRgb}, 0.05) 20px
+                  )
+                `,
+              },
             }}
           >
-            {/* Círculos decorativos */}
-            <Box sx={{ position: "absolute", width: 180, height: 180, borderRadius: "50%", border: `1px solid ${alpha(colors.primary, 0.07)}`, bottom: -70, right: -50, pointerEvents: "none" }} />
-            <Box sx={{ position: "absolute", width: 120, height: 120, borderRadius: "50%", border: `1px solid ${alpha(colors.primary, 0.06)}`, bottom: -30, right: -10, pointerEvents: "none" }} />
-            <Box sx={{ position: "absolute", width: 80, height: 80, borderRadius: "50%", backgroundColor: alpha(colors.primary, 0.04), top: -20, left: -20, pointerEvents: "none" }} />
-
-            <SimCardOutlined sx={{ fontSize: 30, color: alpha(colors.primary, 0.18), mb: 0.75, zIndex: 1 }} />
-            <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em", color: alpha(colors.primary, 0.25), textTransform: "uppercase", zIndex: 1 }}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                border: `2px solid rgba(${primaryRgb}, 0.3)`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 1,
+                animation: glowLevel > 0 ? `${glowPulse} 3s ease-in-out infinite` : "none",
+              }}
+            >
+              <Box
+                sx={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: "50%",
+                  backgroundColor: `rgba(${primaryRgb}, 0.5)`,
+                  boxShadow: glowLevel > 0 
+                    ? `0 0 ${10 * glowLevel}px rgba(${primaryRgb}, 0.5)`
+                    : "none",
+                }}
+              />
+            </Box>
+            <Typography
+              sx={{
+                fontSize: "0.6rem",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                color: `rgba(${primaryRgb}, 0.5)`,
+                textTransform: "uppercase",
+                zIndex: 1,
+              }}
+            >
               eSIM Platform
             </Typography>
           </Box>
@@ -376,24 +474,28 @@ export const DrawerPrimary = ({
           <Box flex={1} />
         )}
 
-        {/* ── Footer: logout ── */}
+        {/* Footer: logout */}
         <Box
           px={collapsed ? 1 : 2}
           pb={2.5}
           sx={{ borderTop: `1px solid ${colors.border}`, pt: 2 }}
         >
           {collapsed ? (
-            <Tooltip title="Cerrar sesión" placement="right" arrow>
+            <Tooltip title="Cerrar sesion" placement="right" arrow>
               <IconButton
                 onClick={onLogOut}
                 sx={{
                   width: 44,
                   height: 44,
-                  borderRadius: "12px",
-                  border: "1px solid rgba(241, 25, 9, 0.18)",
-                  backgroundColor: "#FFF5F4",
-                  color: "#EE190A",
-                  "&:hover": { backgroundColor: "#FEECEB" },
+                  borderRadius: "8px",
+                  border: "1px solid rgba(255, 65, 54, 0.3)",
+                  backgroundColor: "rgba(255, 65, 54, 0.1)",
+                  color: "#FF4136",
+                  transition: "all 0.3s ease",
+                  "&:hover": { 
+                    backgroundColor: "rgba(255, 65, 54, 0.2)",
+                    boxShadow: "0 0 15px rgba(255, 65, 54, 0.3)",
+                  },
                 }}
               >
                 <ExitToAppOutlined fontSize="small" />
@@ -408,25 +510,26 @@ export const DrawerPrimary = ({
               onClick={onLogOut}
               sx={{
                 height: 44,
-                borderRadius: "12px",
+                borderRadius: "8px",
                 textTransform: "none",
-                fontSize: "13.5px",
+                fontSize: "13px",
                 fontWeight: 600,
+                letterSpacing: "0.03em",
                 justifyContent: "flex-start",
                 px: 2,
-                color: "#EE190A",
-                borderColor: "rgba(241, 25, 9, 0.18)",
-                backgroundColor: "#FFF5F4",
-                transition: "all 0.2s ease",
-                "& .MuiButton-startIcon": { mr: 1 },
+                color: "#FF4136",
+                borderColor: "rgba(255, 65, 54, 0.3)",
+                backgroundColor: "rgba(255, 65, 54, 0.08)",
+                transition: "all 0.3s ease",
+                "& .MuiButton-startIcon": { mr: 1.5 },
                 "&:hover": {
-                  borderColor: "rgba(245, 36, 21, 0.28)",
-                  backgroundColor: "#FEECEB",
-                  boxShadow: "0 6px 18px rgba(180, 35, 24, 0.10)",
+                  borderColor: "rgba(255, 65, 54, 0.5)",
+                  backgroundColor: "rgba(255, 65, 54, 0.15)",
+                  boxShadow: "0 0 15px rgba(255, 65, 54, 0.2)",
                 },
               }}
             >
-              Cerrar sesión
+              Cerrar sesion
             </Button>
           )}
         </Box>
@@ -455,6 +558,8 @@ interface INavItemDrawer {
   onPress?: () => void
   isChild?: boolean
   collapsed?: boolean
+  primaryColor: string
+  glowLevel: number
 }
 
 const NavItemDrawer = ({
@@ -467,41 +572,49 @@ const NavItemDrawer = ({
   onPress,
   isChild = false,
   collapsed = false,
+  primaryColor,
+  glowLevel,
 }: INavItemDrawer) => {
   const tooltipText = tooltip ?? subtitle ?? title
+  const primaryRgb = hexToRgb(primaryColor)
 
   const parentStyles = {
     display: "flex",
     padding: collapsed ? "12px" : "12px 16px",
-    borderRadius: "12px",
-    backgroundColor: isActive ? colors.primary : "transparent",
-    color: isActive ? "#fff" : colors.textPrimary,
+    borderRadius: "8px",
+    backgroundColor: isActive ? `rgba(${primaryRgb}, 0.15)` : "transparent",
+    color: isActive ? primaryColor : "#E8E8E8",
     alignItems: "center",
     justifyContent: collapsed ? "center" : "flex-start",
     gap: collapsed ? 0 : 1.5,
-    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+    transition: "all 0.3s ease",
     position: "relative",
-    minHeight: 52,
+    minHeight: 48,
+    border: isActive ? `1px solid rgba(${primaryRgb}, 0.3)` : "1px solid transparent",
+    boxShadow: isActive && glowLevel > 0 
+      ? `0 0 ${10 * glowLevel}px rgba(${primaryRgb}, 0.2), inset 0 0 ${8 * glowLevel}px rgba(${primaryRgb}, 0.1)`
+      : "none",
     "&:hover": {
-      backgroundColor: isActive ? colors.primaryLight : colors.hoverBg,
-      color: isActive ? "#fff" : colors.primary,
+      backgroundColor: `rgba(${primaryRgb}, 0.1)`,
+      color: primaryColor,
+      borderColor: `rgba(${primaryRgb}, 0.2)`,
     },
   } as const
 
   const childStyles = {
     display: "flex",
     padding: "8px 12px",
-    borderRadius: "8px",
-    backgroundColor: isActive ? colors.activeBg : "transparent",
-    color: isActive ? colors.primary : colors.textSecondary,
+    borderRadius: "6px",
+    backgroundColor: isActive ? `rgba(${primaryRgb}, 0.1)` : "transparent",
+    color: isActive ? primaryColor : "rgba(232, 232, 232, 0.7)",
     alignItems: "center",
     gap: 1.2,
-    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+    transition: "all 0.3s ease",
     position: "relative",
     marginLeft: "-12px",
     "&:hover": {
-      backgroundColor: colors.hoverBg,
-      color: colors.primary,
+      backgroundColor: `rgba(${primaryRgb}, 0.08)`,
+      color: primaryColor,
       paddingLeft: "14px",
     },
     "&::before": {
@@ -512,13 +625,16 @@ const NavItemDrawer = ({
       transform: "translateY(-50%)",
       width: "8px",
       height: "2px",
-      backgroundColor: isActive ? colors.primary : colors.childBorder,
-      transition: "background-color 0.2s ease",
+      backgroundColor: isActive ? primaryColor : `rgba(${primaryRgb}, 0.3)`,
+      transition: "all 0.3s ease",
+      boxShadow: isActive && glowLevel > 0 
+        ? `0 0 ${6 * glowLevel}px ${primaryColor}`
+        : "none",
     },
   } as const
 
   return (
-    <Box display="flex" width="100%" flexDirection="row" alignItems="center" mb={0.75}>
+    <Box display="flex" width="100%" flexDirection="row" alignItems="center" mb={0.5}>
       <Box flex={1}>
         <Tooltip title={tooltipText} placement="right" arrow>
           <Box>
@@ -557,13 +673,13 @@ const NavItemDrawer = ({
                 <Box sx={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
                   <Typography
                     sx={{
-                      fontSize: isChild ? 13 : 14,
+                      fontSize: isChild ? 12.5 : 13.5,
                       lineHeight: 1.3,
                       fontWeight: isActive ? 600 : isChild ? 450 : 500,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      letterSpacing: isChild ? "0.01em" : "0.02em",
+                      letterSpacing: "0.03em",
                     }}
                   >
                     {title}
@@ -577,8 +693,11 @@ const NavItemDrawer = ({
                     width: 6,
                     height: 6,
                     borderRadius: "50%",
-                    backgroundColor: colors.primary,
+                    backgroundColor: primaryColor,
                     flexShrink: 0,
+                    boxShadow: glowLevel > 0 
+                      ? `0 0 ${8 * glowLevel}px ${primaryColor}`
+                      : "none",
                   }}
                 />
               )}
@@ -599,6 +718,8 @@ interface INavGroupDrawer {
   startIcon?: ReactNode
   onToggle: () => void
   collapsed?: boolean
+  primaryColor: string
+  glowLevel: number
 }
 
 const NavGroupDrawer = ({
@@ -610,11 +731,14 @@ const NavGroupDrawer = ({
   startIcon,
   onToggle,
   collapsed = false,
+  primaryColor,
+  glowLevel,
 }: INavGroupDrawer) => {
   const tooltipText = tooltip ?? subtitle ?? title
+  const primaryRgb = hexToRgb(primaryColor)
 
   return (
-    <Box display="flex" width="100%" flexDirection="row" alignItems="center" mb={0.75}>
+    <Box display="flex" width="100%" flexDirection="row" alignItems="center" mb={0.5}>
       <Box flex={1}>
         <Tooltip title={tooltipText} placement="right" arrow>
           <Box
@@ -622,20 +746,30 @@ const NavGroupDrawer = ({
             sx={{
               display: "flex",
               padding: collapsed ? "12px" : "12px 16px",
-              borderRadius: "12px",
+              borderRadius: "8px",
               backgroundColor:
-                isActive && !isOpen ? colors.primary : isOpen ? colors.activeBg : "transparent",
-              color: isActive && !isOpen ? "#fff" : colors.textPrimary,
+                isActive && !isOpen 
+                  ? `rgba(${primaryRgb}, 0.15)` 
+                  : isOpen 
+                    ? `rgba(${primaryRgb}, 0.08)` 
+                    : "transparent",
+              color: isActive && !isOpen ? primaryColor : "#E8E8E8",
               alignItems: "center",
               justifyContent: collapsed ? "center" : "flex-start",
               gap: collapsed ? 0 : 1.5,
               cursor: "pointer",
               userSelect: "none",
-              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-              minHeight: 52,
+              transition: "all 0.3s ease",
+              minHeight: 48,
+              border: isActive && !isOpen 
+                ? `1px solid rgba(${primaryRgb}, 0.3)` 
+                : "1px solid transparent",
+              boxShadow: isActive && !isOpen && glowLevel > 0
+                ? `0 0 ${10 * glowLevel}px rgba(${primaryRgb}, 0.2)`
+                : "none",
               "&:hover": {
-                backgroundColor: isActive && !isOpen ? colors.primaryLight : colors.hoverBg,
-                color: isActive && !isOpen ? "#fff" : colors.primary,
+                backgroundColor: `rgba(${primaryRgb}, 0.1)`,
+                color: primaryColor,
               },
             }}
           >
@@ -662,13 +796,13 @@ const NavGroupDrawer = ({
                 <Box sx={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
                   <Typography
                     sx={{
-                      fontSize: 14,
+                      fontSize: 13.5,
                       lineHeight: 1.3,
                       fontWeight: isActive ? 600 : 500,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      letterSpacing: "0.02em",
+                      letterSpacing: "0.03em",
                     }}
                   >
                     {title}
@@ -682,10 +816,9 @@ const NavGroupDrawer = ({
                     justifyContent: "center",
                     width: 24,
                     height: 24,
-                    borderRadius: "6px",
-                    backgroundColor:
-                      isActive && !isOpen ? "rgba(255,255,255,0.15)" : colors.hoverBg,
-                    transition: "transform 0.2s ease",
+                    borderRadius: "4px",
+                    backgroundColor: `rgba(${primaryRgb}, 0.1)`,
+                    transition: "all 0.3s ease",
                     transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
                   }}
                 >
