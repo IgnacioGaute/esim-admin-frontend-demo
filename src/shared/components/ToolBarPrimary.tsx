@@ -137,7 +137,8 @@ export const ToolBarPrimary = ({
       <Container maxWidth={false} disableGutters sx={{ px: { xs: 2, md: 3 } }}>
         <Toolbar
           sx={{
-            minHeight: '72px !important',
+            minHeight: '88px !important',
+            height: '88px',
             px: { xs: 0, md: 2 },
             gap: showMenuButton ? 1 : 0.5,
             alignItems: 'center',
@@ -435,8 +436,8 @@ export const ToolBarPrimary = ({
                 <Box
                   sx={{
                     position: 'relative',
-                    width: 70,
-                    height: 70,
+                    width: 85,
+                    height: 85,
                     flexShrink: 0,
                     display: 'flex',
                     alignItems: 'center',
@@ -446,14 +447,14 @@ export const ToolBarPrimary = ({
                   {user.loading ? (
                     <Skeleton 
                       variant="circular" 
-                      width={44} 
-                      height={44}
+                      width={52} 
+                      height={52}
                       sx={{ bgcolor: `rgba(${primaryRgb}, 0.2)` }}
                     />
                   ) : user?.userType ? (
                     <GodAvatar 
                       userType={user.userType} 
-                      size={44}
+                      size={52}
                       showEffects
                     />
                   ) : (

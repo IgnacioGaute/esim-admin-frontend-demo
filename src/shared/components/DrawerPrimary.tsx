@@ -18,9 +18,9 @@ import {
 } from "@mui/icons-material"
 import { useLocation, useNavigate } from "react-router-dom"
 
-import LogoNew from "@/assets/images/logo/esim-logo.svg"
 import { NavigateLink } from "./NavigateLink"
 import { useTronTheme } from "@/theme/TronThemeContext"
+import { TronLogo } from "./tron/TronLogo"
 
 export const DrawerPrimaryWidth = 280
 export const DrawerPrimaryCollapsedWidth = 64
@@ -225,33 +225,7 @@ export const DrawerPrimary = ({
                 justifyContent="center"
                 sx={{ minWidth: 0, flex: 1 }}
               >
-                <Box
-                  sx={{
-                    position: "relative",
-                    "&::after": {
-                      content: '""',
-                      position: "absolute",
-                      bottom: "-8px",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      width: "60%",
-                      height: "1px",
-                      background: `linear-gradient(90deg, transparent, rgba(${primaryRgb}, 0.5), transparent)`,
-                    },
-                  }}
-                >
-                  <img
-                    src={LogoNew}
-                    alt="eSIM Demo Logo"
-                    style={{ 
-                      height: "2.2rem", 
-                      width: "auto", 
-                      maxWidth: "100%",
-                      filter: "brightness(0) invert(1)",
-                      opacity: 0.9,
-                    }}
-                  />
-                </Box>
+                <TronLogo size={44} showOrbit showText text="eSIM" />
               </Box>
 
               <IconButton
@@ -539,8 +513,8 @@ export const DrawerPrimary = ({
 }
 
 export const DrawerHeaderPrimary = styled("div")(({ theme }) => ({
-  height: 72,
-  minHeight: 72,
+  height: 88,
+  minHeight: 88,
   display: "flex",
   alignItems: "center",
   padding: theme.spacing(0, 1),
