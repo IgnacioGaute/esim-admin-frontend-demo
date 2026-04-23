@@ -435,23 +435,27 @@ export const ToolBarPrimary = ({
                 <Box
                   sx={{
                     position: 'relative',
-                    width: 38,
-                    height: 38,
+                    width: 54,
+                    height: 54,
                     flexShrink: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
                   {user.loading ? (
                     <Skeleton 
                       variant="circular" 
-                      width={38} 
-                      height={38}
+                      width={48} 
+                      height={48}
                       sx={{ bgcolor: `rgba(${primaryRgb}, 0.2)` }}
                     />
                   ) : user?.userType ? (
                     <GodAvatar 
                       userType={user.userType} 
-                      size={38}
+                      size={48}
                       fallbackText={user?.name}
+                      showEffects
                     />
                   ) : (
                     <Avatar
