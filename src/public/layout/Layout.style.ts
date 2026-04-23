@@ -1,33 +1,32 @@
-
-import Bg01Svg from '@/assets/images/backgrounds/bg-01.svg'
-
-interface Props<T = React.CSSProperties>{
-    main: T;
-    card: T;
-    primary: T;
+interface Props<T = React.CSSProperties> {
+  main: T;
+  card: T;
+  primary: T;
 }
 
-export const stylesLayout = () : Props => ({
-    main: {
-        minHeight: '100vh',
-        backgroundImage: `url(${Bg01Svg})`,
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center center',
-        padding: '0 15px',
-    },
-    card: {
-        margin: '0 auto',
-        maxWidth: '420px',
-        width: '100%',
-        backgroundColor: '#fff',
-        padding: '24px 15px',
-        borderRadius: '8px',
-        position: 'relative',
-    },
-    primary: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    }
-})
+export const stylesLayout = (): Props => ({
+  main: {
+    minHeight: '100vh',
+    background: '#0A0A0F',
+    padding: '0 15px',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  card: {
+    margin: '0 auto',
+    maxWidth: '440px',
+    width: '100%',
+    backgroundColor: 'rgba(15, 15, 25, 0.85)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    padding: '40px 32px',
+    borderRadius: '12px',
+    position: 'relative',
+    zIndex: 10,
+  },
+  primary: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { styled } from '@mui/material/styles';
+import { styled, keyframes } from '@mui/material/styles';
 import {
   AppBarProps as MuiAppBarProps,
   AppBar as MuiAppBar,
@@ -26,6 +26,23 @@ import {
 } from '@mui/icons-material';
 import { useScreenSize } from '../hooks/useScreenSize';
 import { useNavigate } from 'react-router-dom';
+import { useTronTheme } from '@/theme/TronThemeContext';
+
+function hexToRgb(hex: string): string {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+    : '0, 255, 255';
+}
+
+const glowPulse = keyframes`
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+`;
 
 interface Props {
   openDrawer: boolean;
@@ -50,27 +67,13 @@ interface Props {
   onBack?: () => void;
 }
 
-const colors = {
-  primary: '#1C3680',
-  primarySoft: 'rgba(28, 54, 128, 0.08)',
-  textPrimary: '#101828',
-  textSecondary: '#667085',
-  border: 'rgba(16, 24, 40, 0.08)',
-  surface: '#FFFFFF',
-  hover: '#F8FAFC',
-  danger: '#B42318',
-  dangerSoft: '#FFF5F4',
-};
-
 export const ToolBarPrimary = ({
   openDrawer,
   collapsedDrawer = false,
   title,
   subtitle,
-  drawerWidth = 260,
+  drawerWidth = 280,
   handleDrawerOpen,
-  totalNoti = 1,
-  handleNotiOpen,
   onLogOut,
   user,
   cart,
@@ -81,6 +84,10 @@ export const ToolBarPrimary = ({
 
   const { width } = useScreenSize();
   const navigate = useNavigate();
+  const { identity, glowLevel } = useTronTheme();
+
+  const primaryColor = identity.primary;
+  const primaryRgb = hexToRgb(primaryColor);
 
   const isMobile = width <= 768;
 
@@ -98,29 +105,27 @@ export const ToolBarPrimary = ({
     setOpenUserMenu(false);
   };
 
-const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
+  const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
+
   return (
     <AppBar
       position="fixed"
       open={openDrawer || collapsedDrawer}
       drawerWidth={drawerWidth}
+      $primaryColor={primaryColor}
+      $glowLevel={glowLevel}
       color="inherit"
       elevation={0}
-      sx={{
-        backdropFilter: 'blur(10px)',
-        backgroundColor: 'rgba(255,255,255,0.92)',
-        borderBottom: `1px solid ${colors.border}`,
-      }}
     >
       <Container maxWidth={false} disableGutters sx={{ px: { xs: 2, md: 3 } }}>
-      <Toolbar
-        sx={{
-          minHeight: '72px !important',
-          px: { xs: 0, md: 2 },
-          gap: showMenuButton ? 1 : 0.5,
-          alignItems: 'center',
-        }}
-      >
+        <Toolbar
+          sx={{
+            minHeight: '72px !important',
+            px: { xs: 0, md: 2 },
+            gap: showMenuButton ? 1 : 0.5,
+            alignItems: 'center',
+          }}
+        >
           {onBack && (
             <IconButton
               onClick={onBack}
@@ -128,20 +133,24 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                 mr: 0.5,
                 width: 40,
                 height: 40,
-                border: `1px solid ${colors.border}`,
-                backgroundColor: colors.surface,
+                border: `1px solid rgba(${primaryRgb}, 0.3)`,
+                backgroundColor: 'rgba(15, 15, 25, 0.8)',
+                color: primaryColor,
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  backgroundColor: colors.hover,
+                  backgroundColor: `rgba(${primaryRgb}, 0.1)`,
+                  boxShadow: glowLevel > 0 
+                    ? `0 0 ${10 * glowLevel}px rgba(${primaryRgb}, 0.3)`
+                    : 'none',
                 },
               }}
             >
-              <ArrowBack sx={{ color: colors.primary, fontSize: 20 }} />
+              <ArrowBack sx={{ fontSize: 20 }} />
             </IconButton>
           )}
 
           {showMenuButton && (
             <IconButton
-              color="primary"
               aria-label="open drawer"
               onClick={handleDrawerOpen}
               edge="start"
@@ -149,11 +158,16 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                 mr: isMobile ? 0.5 : 1,
                 width: 40,
                 height: 40,
-                border: `1px solid ${colors.border}`,
-                backgroundColor: colors.surface,
+                border: `1px solid rgba(${primaryRgb}, 0.3)`,
+                backgroundColor: 'rgba(15, 15, 25, 0.8)',
+                color: primaryColor,
                 flexShrink: 0,
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  backgroundColor: colors.hover,
+                  backgroundColor: `rgba(${primaryRgb}, 0.1)`,
+                  boxShadow: glowLevel > 0 
+                    ? `0 0 ${10 * glowLevel}px rgba(${primaryRgb}, 0.3)`
+                    : 'none',
                 },
               }}
             >
@@ -180,11 +194,15 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                   noWrap
                   component="div"
                   sx={{
-                    color: colors.primary,
+                    color: primaryColor,
                     fontSize: { xs: '1rem', md: '1.15rem' },
                     lineHeight: 1.1,
-                    fontWeight: 800,
-                    letterSpacing: '-0.02em',
+                    fontWeight: 700,
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                    textShadow: glowLevel > 0 
+                      ? `0 0 ${10 * glowLevel}px rgba(${primaryRgb}, 0.5)`
+                      : 'none',
                   }}
                 >
                   {title}
@@ -197,10 +215,12 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                   noWrap
                   sx={{
                     mt: 0.4,
-                    fontSize: '12.5px',
+                    fontSize: '11px',
                     lineHeight: 1.2,
                     fontWeight: 500,
-                    color: colors.textSecondary,
+                    letterSpacing: '0.08em',
+                    color: 'rgba(232, 232, 232, 0.5)',
+                    textTransform: 'uppercase',
                   }}
                 >
                   {subtitle}
@@ -220,16 +240,19 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                 sx={{
                   width: 42,
                   height: 42,
-                  border: `1px solid ${colors.border}`,
-                  backgroundColor: '#FFF8EB',
+                  border: `1px solid rgba(255, 183, 0, 0.3)`,
+                  backgroundColor: 'rgba(255, 183, 0, 0.1)',
+                  transition: 'all 0.3s ease',
                   '&:hover': {
-                    backgroundColor: '#FFF1CC',
+                    backgroundColor: 'rgba(255, 183, 0, 0.15)',
+                    boxShadow: glowLevel > 0 
+                      ? '0 0 15px rgba(255, 183, 0, 0.3)'
+                      : 'none',
                   },
                 }}
               >
                 <Badge
                   badgeContent={cart.count}
-                  color="error"
                   sx={{
                     '& .MuiBadge-badge': {
                       minWidth: 18,
@@ -238,10 +261,12 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                       fontSize: '0.62rem',
                       fontWeight: 700,
                       px: 0.5,
+                      backgroundColor: '#FF4136',
+                      color: '#fff',
                     },
                   }}
                 >
-                  <ShoppingBasketOutlined sx={{ color: '#D97706', fontSize: 21 }} />
+                  <ShoppingBasketOutlined sx={{ color: '#FFB700', fontSize: 21 }} />
                 </Badge>
               </IconButton>
             )}
@@ -253,35 +278,50 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                   display: 'flex',
                   alignItems: 'center',
                   gap: 1.25,
-                  px: { xs: 0.5, md: 1 },
-                  py: 0.5,
-                  borderRadius: '16px',
+                  px: { xs: 0.5, md: 1.5 },
+                  py: 0.75,
+                  borderRadius: '12px',
+                  border: `1px solid rgba(${primaryRgb}, 0.2)`,
+                  backgroundColor: 'rgba(15, 15, 25, 0.6)',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  transition: 'all 0.3s ease',
                   '&:hover': {
-                    backgroundColor: colors.hover,
+                    backgroundColor: `rgba(${primaryRgb}, 0.08)`,
+                    borderColor: `rgba(${primaryRgb}, 0.4)`,
+                    boxShadow: glowLevel > 0 
+                      ? `0 0 ${15 * glowLevel}px rgba(${primaryRgb}, 0.15)`
+                      : 'none',
                   },
                 }}
               >
                 <Box
                   sx={{
                     position: 'relative',
-                    width: 40,
-                    height: 40,
+                    width: 38,
+                    height: 38,
                     flexShrink: 0,
                   }}
                 >
                   {user.loading ? (
-                    <Skeleton variant="circular" width={40} height={40} />
+                    <Skeleton 
+                      variant="circular" 
+                      width={38} 
+                      height={38}
+                      sx={{ bgcolor: `rgba(${primaryRgb}, 0.2)` }}
+                    />
                   ) : (
                     <Avatar
                       sx={{
-                        width: 40,
-                        height: 40,
-                        bgcolor: colors.primarySoft,
-                        color: colors.primary,
-                        border: `1px solid rgba(28, 54, 128, 0.10)`,
+                        width: 38,
+                        height: 38,
+                        bgcolor: `rgba(${primaryRgb}, 0.2)`,
+                        color: primaryColor,
+                        border: `1px solid rgba(${primaryRgb}, 0.3)`,
                         fontWeight: 700,
+                        fontSize: '14px',
+                        boxShadow: glowLevel > 0 
+                          ? `0 0 ${10 * glowLevel}px rgba(${primaryRgb}, 0.3)`
+                          : 'none',
                       }}
                     >
                       {user?.avatar ? (
@@ -297,13 +337,30 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                       )}
                     </Avatar>
                   )}
+                  {/* Online indicator */}
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      bottom: 0,
+                      right: 0,
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      backgroundColor: '#00FF88',
+                      border: '2px solid rgba(10, 10, 18, 0.9)',
+                      boxShadow: glowLevel > 0 
+                        ? '0 0 8px #00FF88'
+                        : 'none',
+                      animation: glowLevel > 0 ? `${glowPulse} 2s ease-in-out infinite` : 'none',
+                    }}
+                  />
                 </Box>
 
                 <Box
                   sx={{
                     display: { xs: 'none', md: 'flex' },
                     alignItems: 'center',
-                    maxWidth: 190,
+                    maxWidth: 180,
                     minWidth: 0,
                   }}
                 >
@@ -311,26 +368,37 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                     <Typography
                       noWrap
                       sx={{
-                        color: colors.textPrimary,
-                        fontSize: '14px',
+                        color: '#E8E8E8',
+                        fontSize: '13px',
                         lineHeight: 1.15,
-                        fontWeight: 700,
+                        fontWeight: 600,
+                        letterSpacing: '0.02em',
                       }}
                     >
-                      {user.loading ? <Skeleton width={90} /> : user?.name || 'Usuario'}
+                      {user.loading ? (
+                        <Skeleton width={80} sx={{ bgcolor: `rgba(${primaryRgb}, 0.2)` }} />
+                      ) : (
+                        user?.name || 'Usuario'
+                      )}
                     </Typography>
 
                     <Typography
                       noWrap
                       sx={{
                         mt: 0.2,
-                        color: colors.textSecondary,
-                        fontSize: '12px',
+                        color: primaryColor,
+                        fontSize: '10px',
                         lineHeight: 1.1,
-                        fontWeight: 500,
+                        fontWeight: 600,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
                       }}
                     >
-                      {user.loading ? <Skeleton width={60} /> : user?.rol || ''}
+                      {user.loading ? (
+                        <Skeleton width={50} sx={{ bgcolor: `rgba(${primaryRgb}, 0.2)` }} />
+                      ) : (
+                        user?.rol || ''
+                      )}
                     </Typography>
                   </Box>
 
@@ -338,9 +406,9 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                     sx={{
                       ml: 1,
                       fontSize: 18,
-                      color: colors.textSecondary,
+                      color: `rgba(${primaryRgb}, 0.7)`,
                       transform: openUserMenu ? 'rotate(180deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.2s ease',
+                      transition: 'transform 0.3s ease',
                     }}
                   />
                 </Box>
@@ -355,12 +423,16 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                 PaperProps={{
                   elevation: 0,
                   sx: {
-                    mt: 1,
+                    mt: 1.5,
                     minWidth: 220,
                     overflow: 'visible',
-                    borderRadius: '16px',
-                    border: `1px solid ${colors.border}`,
-                    boxShadow: '0 16px 40px rgba(16, 24, 40, 0.12)',
+                    borderRadius: '12px',
+                    border: `1px solid rgba(${primaryRgb}, 0.3)`,
+                    backgroundColor: 'rgba(15, 15, 25, 0.95)',
+                    backdropFilter: 'blur(20px)',
+                    boxShadow: glowLevel > 0 
+                      ? `0 8px 32px rgba(0, 0, 0, 0.4), 0 0 ${20 * glowLevel}px rgba(${primaryRgb}, 0.15)`
+                      : '0 8px 32px rgba(0, 0, 0, 0.4)',
                     p: 1,
                     '&::before': {
                       content: '""',
@@ -370,9 +442,9 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                       right: 18,
                       width: 10,
                       height: 10,
-                      bgcolor: '#fff',
-                      borderTop: `1px solid ${colors.border}`,
-                      borderLeft: `1px solid ${colors.border}`,
+                      bgcolor: 'rgba(15, 15, 25, 0.95)',
+                      borderTop: `1px solid rgba(${primaryRgb}, 0.3)`,
+                      borderLeft: `1px solid rgba(${primaryRgb}, 0.3)`,
                       transform: 'translateY(-50%) rotate(45deg)',
                       zIndex: 0,
                     },
@@ -390,11 +462,12 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                 >
                   <Avatar
                     sx={{
-                      width: 38,
-                      height: 38,
-                      bgcolor: colors.primarySoft,
-                      color: colors.primary,
+                      width: 36,
+                      height: 36,
+                      bgcolor: `rgba(${primaryRgb}, 0.2)`,
+                      color: primaryColor,
                       fontWeight: 700,
+                      fontSize: '13px',
                     }}
                   >
                     {user?.avatar ? (
@@ -414,9 +487,10 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                     <Typography
                       noWrap
                       sx={{
-                        fontSize: '13.5px',
-                        fontWeight: 700,
-                        color: colors.textPrimary,
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: '#E8E8E8',
+                        letterSpacing: '0.02em',
                       }}
                     >
                       {user?.name || 'Usuario'}
@@ -424,9 +498,11 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                     <Typography
                       noWrap
                       sx={{
-                        fontSize: '12px',
-                        fontWeight: 500,
-                        color: colors.textSecondary,
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        color: primaryColor,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
                       }}
                     >
                       {user?.rol || ''}
@@ -434,19 +510,25 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                   </Box>
                 </Box>
 
-                <Divider sx={{ my: 0.5 }} />
+                <Divider sx={{ my: 0.5, borderColor: `rgba(${primaryRgb}, 0.2)` }} />
 
                 <MenuItem
                   onClick={handleGoToAccount}
                   sx={{
                     minHeight: 42,
-                    borderRadius: '10px',
+                    borderRadius: '8px',
                     mx: 0.5,
                     gap: 1.2,
+                    color: '#E8E8E8',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      backgroundColor: `rgba(${primaryRgb}, 0.1)`,
+                      color: primaryColor,
+                    },
                   }}
                 >
-                  <AccountCircleOutlined sx={{ fontSize: 18, color: colors.primary }} />
-                  <Typography sx={{ fontSize: '14px', fontWeight: 500 }}>
+                  <AccountCircleOutlined sx={{ fontSize: 18 }} />
+                  <Typography sx={{ fontSize: '13px', fontWeight: 500 }}>
                     Mi cuenta
                   </Typography>
                 </MenuItem>
@@ -458,19 +540,20 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
                   }}
                   sx={{
                     minHeight: 42,
-                    borderRadius: '10px',
+                    borderRadius: '8px',
                     mx: 0.5,
                     mt: 0.5,
                     gap: 1.2,
-                    color: colors.danger,
+                    color: '#FF4136',
+                    transition: 'all 0.3s ease',
                     '&:hover': {
-                      backgroundColor: colors.dangerSoft,
+                      backgroundColor: 'rgba(255, 65, 54, 0.1)',
                     },
                   }}
                 >
                   <LogoutOutlined sx={{ fontSize: 18 }} />
-                  <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-                    Cerrar sesión
+                  <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>
+                    Cerrar sesion
                   </Typography>
                 </MenuItem>
               </Menu>
@@ -485,18 +568,35 @@ const showMenuButton = Boolean(handleDrawerOpen) && isMobile && !openDrawer;
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
   drawerWidth: number;
+  $primaryColor: string;
+  $glowLevel: number;
 }
 
 const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open' && prop !== 'drawerWidth',
-})<AppBarProps>(({ theme, open, drawerWidth }) => ({
-  backgroundImage: 'none',
-  height: 72,
-  minHeight: 72,
-  width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
-  marginLeft: open ? `${drawerWidth}px` : 0,
-  transition: theme.transitions.create(['margin-left', 'width'], {
-    easing: theme.transitions.easing.easeOut,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-}));
+  shouldForwardProp: (prop) => 
+    prop !== 'open' && 
+    prop !== 'drawerWidth' && 
+    prop !== '$primaryColor' && 
+    prop !== '$glowLevel',
+})<AppBarProps>(({ theme, open, drawerWidth, $primaryColor, $glowLevel }) => {
+  const primaryRgb = hexToRgb($primaryColor);
+  
+  return {
+    backgroundImage: 'none',
+    height: 72,
+    minHeight: 72,
+    width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
+    marginLeft: open ? `${drawerWidth}px` : 0,
+    transition: theme.transitions.create(['margin-left', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    backgroundColor: 'rgba(10, 10, 18, 0.85)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    borderBottom: `1px solid rgba(${primaryRgb}, 0.2)`,
+    boxShadow: $glowLevel > 0 
+      ? `0 4px ${15 * $glowLevel}px rgba(${primaryRgb}, 0.1)`
+      : 'none',
+  };
+});
